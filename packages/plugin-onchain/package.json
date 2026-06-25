@@ -1,5 +1,5 @@
 {
-  "name": "@moonai/casper",
+  "name": "@moonai/plugin-onchain",
   "version": "0.1.0",
   "private": true,
   "type": "module",

@@ -14,20 +14,20 @@
       "name": "@moonai/orchestrator",
       "version": "0.1.0",
       "dependencies": {
-        "@moonai/casper": "workspace:*",
         "@moonai/core": "workspace:*",
-      },
-    },
-    "packages/casper": {
-      "name": "@moonai/casper",
-      "version": "0.1.0",
-      "dependencies": {
-        "casper-js-sdk": "5.0.12",
+        "@moonai/plugin-onchain": "workspace:*",
       },
     },
     "packages/core": {
       "name": "@moonai/core",
       "version": "0.1.0",
+    },
+    "packages/plugin-onchain": {
+      "name": "@moonai/plugin-onchain",
+      "version": "0.1.0",
+      "dependencies": {
+        "casper-js-sdk": "5.0.12",
+      },
     },
   },
   "packages": {
@@ -57,11 +57,11 @@
 
     "@ethersproject/logger": ["@ethersproject/logger@5.8.0", "", {}, "sha512-Qe6knGmY+zPPWTC+wQrpitodgBfH7XoceCGL5bJVejmH+yCS3R8jJm8iiWuvWbG76RUmyEG53oqv6GMVWqunjA=="],
 
-    "@moonai/casper": ["@moonai/casper@workspace:packages/casper"],
-
     "@moonai/core": ["@moonai/core@workspace:packages/core"],
 
     "@moonai/orchestrator": ["@moonai/orchestrator@workspace:apps/orchestrator"],
+
+    "@moonai/plugin-onchain": ["@moonai/plugin-onchain@workspace:packages/plugin-onchain"],
 
     "@noble/curves": ["@noble/curves@1.9.7", "", { "dependencies": { "@noble/hashes": "1.8.0" } }, "sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw=="],
 

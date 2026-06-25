@@ -12,13 +12,20 @@
  *      CSPR_CLOUD_API_KEY, OPENAI_API_KEY.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { accountHashOf, arena, fund, loadSigner, newAgent, txLink } from '@moonai/casper'
 import {
   craftAnswer,
   generatePersonalities,
   generateQuestion,
   judgePanel,
 } from '@moonai/core'
+import {
+  accountHashOf,
+  arena,
+  fund,
+  loadSigner,
+  newAgent,
+  txLink,
+} from '@moonai/plugin-onchain'
 
 const PEM = process.env.CASPER_SECRET_KEY_PATH
 if (!PEM) throw new Error('set CASPER_SECRET_KEY_PATH (the orchestrator / Account 4 key)')

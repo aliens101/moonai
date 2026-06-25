@@ -7,7 +7,7 @@
     "start": "bun run src/index.ts"
   },
   "dependencies": {
-    "@moonai/casper": "workspace:*",
+    "@moonai/plugin-onchain": "workspace:*",
     "@moonai/core": "workspace:*"
   }
 }
