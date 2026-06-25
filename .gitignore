@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+target/
+.next/
+build/
+
+# Env & secrets — NEVER commit
+.env
+.env.*
+!.env.example
+*.stray.bak
+*.pem
+*_secret_key*
+
+# Misc
+*.log
+.DS_Store
+
+# Local planning / strategy docs (keep OUT of the public repo)
+MOON-AI-BLUEPRINT.md
+knowledge/
