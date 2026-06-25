@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [dependencies]
 odra = { version = "2.8.0", features = [], default-features = false }
+tiny-keccak = { version = "2.0.2", default-features = false, features = ["keccak"] }
 
 [dev-dependencies]
 odra-test = { version = "2.8.0", features = [], default-features = false }

@@ -2,4 +2,7 @@
 fqn = "arena::Arena"
 
 [[contracts]]
+fqn = "token::MoonToken"
+
+[[contracts]]
 fqn = "flipper::Flipper"
