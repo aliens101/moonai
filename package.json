@@ -1,0 +1,11 @@
+{
+  "name": "moonai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "bun run scripts/deploy.ts"
+  },
+  "dependencies": {
+    "casper-js-sdk": "5.0.12"
+  }
+}
