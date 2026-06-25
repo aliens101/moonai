@@ -44,7 +44,7 @@ const ALL: Array<{ name: string; key: string; pay: number; init?: InitArgs }> = 
   },
 ]
 const want = process.argv.slice(2)
-const contracts = want.length ? ALL.filter(c => want.includes(c.name)) : ALL
+const contracts = want.length ? ALL.filter((c) => want.includes(c.name)) : ALL
 
 const MOTES = 1_000_000_000
 
@@ -53,7 +53,7 @@ async function waitResult(hash: string): Promise<{ ok: boolean; error?: string }
     getTransactionByTransactionHash?: (h: string) => Promise<unknown>
   }
   for (let i = 0; i < 40; i++) {
-    await new Promise(r => setTimeout(r, 5000))
+    await new Promise((r) => setTimeout(r, 5000))
     try {
       const r = (await any.getTransactionByTransactionHash?.(hash)) as {
         executionInfo?: { executionResult?: { errorMessage?: string } }
@@ -115,6 +115,8 @@ for (const c of contracts) {
     console.log(`  ❌ FAILED: ${res.error}`)
     process.exit(1)
   }
-  console.log(`  ✅ installed → named key '${c.key}' (read its package hash from the account)`)
+  console.log(
+    `  ✅ installed → named key '${c.key}' (read its package hash from the account)`,
+  )
 }
 console.log('\nDone. Record the package hashes in .env.')

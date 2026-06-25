@@ -11,8 +11,7 @@ if (process.env.CSPR_CLOUD_API_KEY)
   handler.setCustomHeaders({ Authorization: process.env.CSPR_CLOUD_API_KEY })
 const rpc = new RpcClient(handler)
 
-const PUB =
-  '0203684aa256a6e48c4d3bb2909cff9f71d6f7c52c96b549d19b09fd298600cfba6b'
+const PUB = '0203684aa256a6e48c4d3bb2909cff9f71d6f7c52c96b549d19b09fd298600cfba6b'
 
 // biome-ignore lint/suspicious/noExplicitAny: probing SDK response shape
 const info: any = await rpc.getAccountInfo(PublicKey.fromHex(PUB))
