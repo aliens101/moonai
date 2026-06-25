@@ -45,6 +45,31 @@ export function txLink(hash: string): string {
   return `https://testnet.cspr.live/transaction/${hash}`
 }
 
+/** Read an account's named keys via raw JSON-RPC (state_get_account_info). */
+export async function accountNamedKeys(
+  publicKeyHex: string,
+): Promise<{ name: string; key: string }[]> {
+  const res = await fetch(NODE, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...(process.env.CSPR_CLOUD_API_KEY
+        ? { authorization: process.env.CSPR_CLOUD_API_KEY }
+        : {}),
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'state_get_account_info',
+      params: { public_key: publicKeyHex },
+    }),
+  })
+  const data = (await res.json()) as {
+    result?: { account?: { named_keys?: { name: string; key: string }[] } }
+  }
+  return data.result?.account?.named_keys ?? []
+}
+
 async function waitResult(hash: string): Promise<{ ok: boolean; error?: string }> {
   const client = rpc as unknown as {
     getTransactionByTransactionHash?: (h: string) => Promise<unknown>

@@ -11,9 +11,10 @@
     "hashes": "bun run scripts/hashes.ts",
     "demo": "bun run scripts/agents-demo.ts",
     "match": "bun run apps/orchestrator/src/index.ts",
+    "test": "bun test",
+    "test:contracts": "cd moonai-contracts && cargo odra test",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "contracts:test": "cd moonai-contracts && cargo odra test",
     "contracts:build": "cd moonai-contracts && cargo odra build"
   },
   "devDependencies": {

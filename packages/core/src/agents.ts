@@ -72,8 +72,17 @@ export async function judge(
     ],
     0.3,
   )
-  const score = Math.max(0, Math.min(10, Math.round(r.score)))
-  return { judge: p.name, score, reason: r.reason }
+  return { judge: p.name, score: clampScore(r.score), reason: r.reason }
+}
+
+/** Clamp + round a raw judge score into the valid 0..10 range. */
+export function clampScore(raw: number): number {
+  return Math.max(0, Math.min(10, Math.round(raw)))
+}
+
+/** Total a panel's scores (0..10 each → 0..30 for a 3-judge panel). */
+export function tallyPanel(scores: JudgeScore[]): number {
+  return scores.reduce((sum, j) => sum + j.score, 0)
 }
 
 /** Run the full panel; total is the sum of each judge's 0..10. */
@@ -83,8 +92,7 @@ export async function judgePanel(
   personalities: Personality[],
 ): Promise<PanelResult> {
   const scores = await Promise.all(personalities.map((p) => judge(question, answer, p)))
-  const total = scores.reduce((s, j) => s + j.score, 0)
-  return { total, scores }
+  return { total: tallyPanel(scores), scores }
 }
 
 /** Reference participant — players replace this with their own agent + strategy. */
