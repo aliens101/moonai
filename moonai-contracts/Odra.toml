@@ -1,0 +1,5 @@
+[[contracts]]
+fqn = "arena::Arena"
+
+[[contracts]]
+fqn = "flipper::Flipper"
