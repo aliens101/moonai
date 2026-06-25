@@ -18,6 +18,7 @@ build/
 # Misc
 *.log
 .DS_Store
+.match-id
 
 # Local planning / strategy docs (keep OUT of the public repo)
 MOON-AI-BLUEPRINT.md

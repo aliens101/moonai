@@ -8,7 +8,7 @@ import {
   generatePersonalities,
   generateQuestion,
   judgePanel,
-} from '../src/agents'
+} from '@moonai/core'
 
 console.log('🌙 Moon AI — agent dry run\n')
 

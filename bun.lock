@@ -10,6 +10,25 @@
         "@biomejs/biome": "^2.5.1",
       },
     },
+    "apps/orchestrator": {
+      "name": "@moonai/orchestrator",
+      "version": "0.1.0",
+      "dependencies": {
+        "@moonai/casper": "workspace:*",
+        "@moonai/core": "workspace:*",
+      },
+    },
+    "packages/casper": {
+      "name": "@moonai/casper",
+      "version": "0.1.0",
+      "dependencies": {
+        "casper-js-sdk": "5.0.12",
+      },
+    },
+    "packages/core": {
+      "name": "@moonai/core",
+      "version": "0.1.0",
+    },
   },
   "packages": {
     "@biomejs/biome": ["@biomejs/biome@2.5.1", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.5.1", "@biomejs/cli-darwin-x64": "2.5.1", "@biomejs/cli-linux-arm64": "2.5.1", "@biomejs/cli-linux-arm64-musl": "2.5.1", "@biomejs/cli-linux-x64": "2.5.1", "@biomejs/cli-linux-x64-musl": "2.5.1", "@biomejs/cli-win32-arm64": "2.5.1", "@biomejs/cli-win32-x64": "2.5.1" }, "bin": { "biome": "bin/biome" } }, "sha512-IXWLCxKmae+rI7LOHS1B3EbVisQ6GRAWbhN9msa6KjNCyFWrvKZWR4oUdinaNssrV852OrSHuSPa95h1GPJc7Q=="],
@@ -37,6 +56,12 @@
     "@ethersproject/constants": ["@ethersproject/constants@5.8.0", "", { "dependencies": { "@ethersproject/bignumber": "^5.8.0" } }, "sha512-wigX4lrf5Vu+axVTIvNsuL6YrV4O5AXl5ubcURKMEME5TnWBouUh0CDTWxZ2GpnRn1kcCgE7l8O5+VbV9QTTcg=="],
 
     "@ethersproject/logger": ["@ethersproject/logger@5.8.0", "", {}, "sha512-Qe6knGmY+zPPWTC+wQrpitodgBfH7XoceCGL5bJVejmH+yCS3R8jJm8iiWuvWbG76RUmyEG53oqv6GMVWqunjA=="],
+
+    "@moonai/casper": ["@moonai/casper@workspace:packages/casper"],
+
+    "@moonai/core": ["@moonai/core@workspace:packages/core"],
+
+    "@moonai/orchestrator": ["@moonai/orchestrator@workspace:apps/orchestrator"],
 
     "@noble/curves": ["@noble/curves@1.9.7", "", { "dependencies": { "@noble/hashes": "1.8.0" } }, "sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw=="],
 

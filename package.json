@@ -2,13 +2,24 @@
   "name": "moonai",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "deploy": "bun run scripts/deploy.ts"
-  },
-  "dependencies": {
-    "casper-js-sdk": "5.0.12"
+    "deploy": "bun run scripts/deploy.ts",
+    "hashes": "bun run scripts/hashes.ts",
+    "demo": "bun run scripts/agents-demo.ts",
+    "match": "bun run apps/orchestrator/src/index.ts",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "contracts:test": "cd moonai-contracts && cargo odra test",
+    "contracts:build": "cd moonai-contracts && cargo odra build"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.1"
+  },
+  "dependencies": {
+    "casper-js-sdk": "5.0.12"
   }
 }
