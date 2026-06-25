@@ -6,8 +6,7 @@ use odra::schema::casper_contract_schema::NamedCLType;
 use odra_cli::{
     deploy::DeployScript,
     scenario::{Args, Error, Scenario, ScenarioMetadata},
-    CommandArg, ContractProvider, DeployedContractsContainer, DeployerExt,
-    OdraCli, 
+    CommandArg, ContractProvider, DeployedContractsContainer, DeployerExt, OdraCli,
 };
 
 /// Deploys the `Flipper` and adds it to the container.
@@ -17,13 +16,13 @@ impl DeployScript for FlipperDeployScript {
     fn deploy(
         &self,
         env: &HostEnv,
-        container: &mut DeployedContractsContainer
+        container: &mut DeployedContractsContainer,
     ) -> Result<(), odra_cli::deploy::Error> {
         let _flipper = Flipper::load_or_deploy(
             &env,
             NoArgs,
             container,
-            350_000_000_000 // Adjust gas limit as needed
+            350_000_000_000, // Adjust gas limit as needed
         )?;
 
         Ok(())
@@ -46,7 +45,7 @@ impl Scenario for FlippingScenario {
         &self,
         env: &HostEnv,
         container: &DeployedContractsContainer,
-        args: Args
+        args: Args,
     ) -> Result<(), Error> {
         let mut contract = container.contract_ref::<Flipper>(env)?;
         let n = args.get_single::<u64>("name")?;

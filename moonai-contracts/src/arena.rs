@@ -148,7 +148,11 @@ impl Arena {
         self.min_players.set(&id, min_p);
         self.prize_pool.set(&id, U512::zero());
         self.player_count.set(&id, 0);
-        self.env().emit_event(MatchCreated { match_id: id, entry_fee, min_players: min_p });
+        self.env().emit_event(MatchCreated {
+            match_id: id,
+            entry_fee,
+            min_players: min_p,
+        });
         id
     }
 
@@ -171,7 +175,11 @@ impl Arena {
         self.player_count.set(&match_id, idx + 1);
         let pool = self.prize_pool.get_or_default(&match_id) + fee;
         self.prize_pool.set(&match_id, pool);
-        self.env().emit_event(PlayerRegistered { match_id, player, prize_pool: pool });
+        self.env().emit_event(PlayerRegistered {
+            match_id,
+            player,
+            prize_pool: pool,
+        });
     }
 
     /// Orchestrator-only: post the question once `min_players` have joined. Moves
@@ -179,12 +187,16 @@ impl Arena {
     pub fn post_question(&mut self, match_id: u64, question_hash: String) {
         self.assert_orchestrator();
         self.assert_status(match_id, ST_OPEN, ArenaError::MatchNotOpen);
-        if self.player_count.get_or_default(&match_id) < self.min_players.get_or_default(&match_id) {
+        if self.player_count.get_or_default(&match_id) < self.min_players.get_or_default(&match_id)
+        {
             self.env().revert(ArenaError::NotEnoughPlayers);
         }
         self.question_hash.set(&match_id, question_hash.clone());
         self.status.set(&match_id, ST_IN_PROGRESS);
-        self.env().emit_event(QuestionPosted { match_id, question_hash });
+        self.env().emit_event(QuestionPosted {
+            match_id,
+            question_hash,
+        });
     }
 
     /// Registered-player-only: submit one answer for an in-progress match.
@@ -198,8 +210,13 @@ impl Arena {
             self.env().revert(ArenaError::AlreadyAnswered);
         }
         self.answered.set(&(match_id, player), true);
-        self.answer_hash.set(&(match_id, player), answer_hash.clone());
-        self.env().emit_event(AnswerSubmitted { match_id, player, answer_hash });
+        self.answer_hash
+            .set(&(match_id, player), answer_hash.clone());
+        self.env().emit_event(AnswerSubmitted {
+            match_id,
+            player,
+            answer_hash,
+        });
     }
 
     /// Orchestrator-only: anchor the result. Records the winner + winning score,
@@ -235,7 +252,12 @@ impl Arena {
         }
 
         let prize = self.prize_pool.get_or_default(&match_id);
-        self.env().emit_event(MatchSettled { match_id, winner, winner_score, prize });
+        self.env().emit_event(MatchSettled {
+            match_id,
+            winner,
+            winner_score,
+            prize,
+        });
     }
 
     /// Winner-only: withdraw the prize pool of a settled match (pull payment).
@@ -258,7 +280,11 @@ impl Arena {
         }
         self.claimed.set(&match_id, true);
         self.env().transfer_tokens(&caller, &prize);
-        self.env().emit_event(PrizeClaimed { match_id, winner: caller, amount: prize });
+        self.env().emit_event(PrizeClaimed {
+            match_id,
+            winner: caller,
+            amount: prize,
+        });
     }
 
     // --- views ---
@@ -285,7 +311,10 @@ impl Arena {
     }
     /// `(wins, matches_played)` for an agent.
     pub fn get_record(&self, agent: Address) -> (u64, u64) {
-        (self.wins.get_or_default(&agent), self.played.get_or_default(&agent))
+        (
+            self.wins.get_or_default(&agent),
+            self.played.get_or_default(&agent),
+        )
     }
     pub fn get_orchestrator(&self) -> Address {
         self.must_orchestrator()
@@ -294,7 +323,11 @@ impl Arena {
     // --- internal ---
     fn elo_of(&self, agent: Address) -> u64 {
         let e = self.elo.get_or_default(&agent);
-        if e == 0 { ELO_START } else { e }
+        if e == 0 {
+            ELO_START
+        } else {
+            e
+        }
     }
     fn must_owner(&self) -> Address {
         match self.owner.get() {
@@ -402,7 +435,10 @@ mod tests {
         let mid = arena.create_match(U512::from(1000u64), 2);
         env.set_caller(alice);
         assert_eq!(
-            arena.with_tokens(U512::from(999u64)).try_register(mid).unwrap_err(),
+            arena
+                .with_tokens(U512::from(999u64))
+                .try_register(mid)
+                .unwrap_err(),
             ArenaError::WrongEntryFee.into()
         );
     }
@@ -445,11 +481,17 @@ mod tests {
 
         // bob (loser) cannot claim
         env.set_caller(bob);
-        assert_eq!(arena.try_claim(mid).unwrap_err(), ArenaError::NotWinner.into());
+        assert_eq!(
+            arena.try_claim(mid).unwrap_err(),
+            ArenaError::NotWinner.into()
+        );
         // alice claims once, second claim reverts
         env.set_caller(alice);
         arena.claim(mid);
-        assert_eq!(arena.try_claim(mid).unwrap_err(), ArenaError::AlreadyClaimed.into());
+        assert_eq!(
+            arena.try_claim(mid).unwrap_err(),
+            ArenaError::AlreadyClaimed.into()
+        );
     }
 
     #[test]

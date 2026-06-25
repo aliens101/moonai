@@ -10,13 +10,13 @@ pub struct Flipper {
 }
 
 /// Module implementation.
-/// 
+///
 /// To generate entrypoints,
 /// an implementation block must be marked as #[odra::module].
 #[odra::module]
 impl Flipper {
     /// Odra constructor.
-    /// 
+    ///
     /// Initializes the contract.
     pub fn init(&mut self) {
         self.value.set(false);
@@ -32,7 +32,7 @@ impl Flipper {
         self.value.set(!self.get());
     }
 
-    /// Retrieves value from the storage. 
+    /// Retrieves value from the storage.
     /// If the value has never been set, the default value is returned.
     pub fn get(&self) -> bool {
         self.value.get_or_default()
@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn flipping() {
         let env = odra_test::env();
-        // To test a module we need to deploy it. `Flipper` implements `Deployer` trait, 
+        // To test a module we need to deploy it. `Flipper` implements `Deployer` trait,
         // so we can use it to deploy the module.
         let mut contract = Flipper::deploy(&env, NoArgs);
         assert!(!contract.get());

@@ -168,9 +168,15 @@ impl MoonToken {
 
     /// Mint `amount` new tokens to `to` (open, for the test token).
     pub fn mint(&mut self, to: Address, amount: U256) {
-        self.total_supply.set(self.total_supply.get_or_default() + amount);
-        self.balances.set(&to, self.balances.get_or_default(&to) + amount);
-        self.env().emit_event(Transfer { from: to, to, amount });
+        self.total_supply
+            .set(self.total_supply.get_or_default() + amount);
+        self.balances
+            .set(&to, self.balances.get_or_default(&to) + amount);
+        self.env().emit_event(Transfer {
+            from: to,
+            to,
+            amount,
+        });
     }
 
     /// Transfer `amount` from the caller to `recipient`.
@@ -238,14 +244,22 @@ impl MoonToken {
             &nonce,
         );
         let digest_bytes = Bytes::from(digest.to_vec());
-        if !self.env().verify_signature(&digest_bytes, &signature, &public_key) {
+        if !self
+            .env()
+            .verify_signature(&digest_bytes, &signature, &public_key)
+        {
             self.env().revert(MoonTokenError::InvalidSignature);
         }
 
         // All checks passed: mark the nonce used, then move the funds.
         self.used_nonces.set(&nonce_key, true);
         self.do_transfer(from, to, amount);
-        self.env().emit_event(AuthorizationUsed { from, to, amount, nonce });
+        self.env().emit_event(AuthorizationUsed {
+            from,
+            to,
+            amount,
+            nonce,
+        });
     }
 
     /// Rebuild the EIP-712 digest for a `TransferWithAuthorization` exactly as
@@ -261,8 +275,14 @@ impl MoonToken {
         nonce: &Bytes,
     ) -> [u8; 32] {
         let domain_separator = self.domain_separator();
-        let struct_hash =
-            transfer_with_authorization_struct_hash(from, to, amount, valid_after, valid_before, nonce);
+        let struct_hash = transfer_with_authorization_struct_hash(
+            from,
+            to,
+            amount,
+            valid_after,
+            valid_before,
+            nonce,
+        );
 
         // keccak256(0x19 || 0x01 || domainSeparator || structHash)
         let mut buf = Vec::with_capacity(2 + 32 + 32);
@@ -281,7 +301,8 @@ impl MoonToken {
             self.env().revert(MoonTokenError::InsufficientBalance);
         }
         self.balances.set(&from, from_balance - amount);
-        self.balances.set(&to, self.balances.get_or_default(&to) + amount);
+        self.balances
+            .set(&to, self.balances.get_or_default(&to) + amount);
         self.env().emit_event(Transfer { from, to, amount });
     }
 
@@ -290,7 +311,12 @@ impl MoonToken {
     fn domain_separator(&self) -> [u8; 32] {
         // The address `value()` is the 32-byte package-hash for a contract.
         let package_hash: [u8; 32] = self.env().self_address().value();
-        domain_separator(&self.name(), &self.version(), &self.chain_name(), &package_hash)
+        domain_separator(
+            &self.name(),
+            &self.version(),
+            &self.chain_name(),
+            &package_hash,
+        )
     }
 }
 
@@ -409,7 +435,9 @@ mod tests {
         let other = env.get_account(1);
         env.set_caller(other);
         assert_eq!(
-            token.try_transfer(env.get_account(0), U256::from(1u64)).unwrap_err(),
+            token
+                .try_transfer(env.get_account(0), U256::from(1u64))
+                .unwrap_err(),
             MoonTokenError::InsufficientBalance.into()
         );
     }
@@ -449,7 +477,14 @@ mod tests {
         let valid_before = 10_000_000_000u64; // far future
         let nonce = nonce32(1);
 
-        let digest = token.transfer_with_authorization_digest(payer, payee, amount, valid_after, valid_before, &nonce);
+        let digest = token.transfer_with_authorization_digest(
+            payer,
+            payee,
+            amount,
+            valid_after,
+            valid_before,
+            &nonce,
+        );
         let signature = sign(digest, &secret, &public);
         let sig_bytes = Bytes::from(signature.to_bytes().unwrap());
 
@@ -484,7 +519,14 @@ mod tests {
 
         let amount = U256::from(100u64);
         let nonce = nonce32(2);
-        let digest = token.transfer_with_authorization_digest(payer, payee, amount, 0, 10_000_000_000, &nonce);
+        let digest = token.transfer_with_authorization_digest(
+            payer,
+            payee,
+            amount,
+            0,
+            10_000_000_000,
+            &nonce,
+        );
         let sig_bytes = Bytes::from(sign(digest, &secret, &public).to_bytes().unwrap());
 
         token.transfer_with_authorization(
@@ -530,12 +572,20 @@ mod tests {
         let amount = U256::from(100u64);
         let nonce = nonce32(3);
         let valid_before = 1u64; // 1 second past epoch, long expired
-        let digest = token.transfer_with_authorization_digest(payer, payee, amount, 0, valid_before, &nonce);
+        let digest =
+            token.transfer_with_authorization_digest(payer, payee, amount, 0, valid_before, &nonce);
         let sig_bytes = Bytes::from(sign(digest, &secret, &public).to_bytes().unwrap());
 
         let err = token
             .try_transfer_with_authorization(
-                payer, payee, amount, 0, valid_before, nonce, public, sig_bytes,
+                payer,
+                payee,
+                amount,
+                0,
+                valid_before,
+                nonce,
+                public,
+                sig_bytes,
             )
             .unwrap_err();
         assert_eq!(err, MoonTokenError::AuthExpired.into());
@@ -555,7 +605,14 @@ mod tests {
         let amount = U256::from(100u64);
         let nonce = nonce32(4);
         let valid_after = 10_000_000_000u64; // far future
-        let digest = token.transfer_with_authorization_digest(payer, payee, amount, valid_after, 10_000_000_001, &nonce);
+        let digest = token.transfer_with_authorization_digest(
+            payer,
+            payee,
+            amount,
+            valid_after,
+            10_000_000_001,
+            &nonce,
+        );
         let sig_bytes = Bytes::from(sign(digest, &secret, &public).to_bytes().unwrap());
 
         let err = token
@@ -587,12 +644,26 @@ mod tests {
         let amount = U256::from(100u64);
         let nonce = nonce32(5);
         // Sign a DIFFERENT amount than the one submitted -> digest mismatch.
-        let bad_digest = token.transfer_with_authorization_digest(payer, payee, U256::from(999u64), 0, 10_000_000_000, &nonce);
+        let bad_digest = token.transfer_with_authorization_digest(
+            payer,
+            payee,
+            U256::from(999u64),
+            0,
+            10_000_000_000,
+            &nonce,
+        );
         let sig_bytes = Bytes::from(sign(bad_digest, &secret, &public).to_bytes().unwrap());
 
         let err = token
             .try_transfer_with_authorization(
-                payer, payee, amount, 0, 10_000_000_000, nonce, public, sig_bytes,
+                payer,
+                payee,
+                amount,
+                0,
+                10_000_000_000,
+                nonce,
+                public,
+                sig_bytes,
             )
             .unwrap_err();
         assert_eq!(err, MoonTokenError::InvalidSignature.into());
@@ -611,7 +682,14 @@ mod tests {
 
         let amount = U256::from(100u64);
         let nonce = nonce32(6);
-        let digest = token.transfer_with_authorization_digest(payer, payee, amount, 0, 10_000_000_000, &nonce);
+        let digest = token.transfer_with_authorization_digest(
+            payer,
+            payee,
+            amount,
+            0,
+            10_000_000_000,
+            &nonce,
+        );
         let sig_bytes = Bytes::from(sign(digest, &secret, &public).to_bytes().unwrap());
 
         // A different public key whose account-hash != `from`.
@@ -643,12 +721,26 @@ mod tests {
         // Payer is unfunded.
         let amount = U256::from(100u64);
         let nonce = nonce32(7);
-        let digest = token.transfer_with_authorization_digest(payer, payee, amount, 0, 10_000_000_000, &nonce);
+        let digest = token.transfer_with_authorization_digest(
+            payer,
+            payee,
+            amount,
+            0,
+            10_000_000_000,
+            &nonce,
+        );
         let sig_bytes = Bytes::from(sign(digest, &secret, &public).to_bytes().unwrap());
 
         let err = token
             .try_transfer_with_authorization(
-                payer, payee, amount, 0, 10_000_000_000, nonce, public, sig_bytes,
+                payer,
+                payee,
+                amount,
+                0,
+                10_000_000_000,
+                nonce,
+                public,
+                sig_bytes,
             )
             .unwrap_err();
         assert_eq!(err, MoonTokenError::InsufficientBalance.into());
