@@ -5,3 +5,6 @@ extern crate alloc;
 pub mod arena;
 pub mod flipper;
 pub mod token;
+
+pub use arena::Arena;
+pub use token::MoonToken;
