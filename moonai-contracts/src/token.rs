@@ -396,6 +396,41 @@ fn domain_separator(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Cross-language EIP-712 vector. Prints the canonical `transfer_with_authorization`
+    /// digest for FIXED inputs (fixed package hash) so the off-chain TS x402 client can
+    /// assert byte-for-byte equality against this on-chain implementation.
+    ///   cargo test eip712_digest_vector -- --nocapture
+    #[test]
+    fn eip712_digest_vector() {
+        use odra::casper_types::account::AccountHash;
+        let from = Address::Account(AccountHash::new([0x22u8; 32]));
+        let to = Address::Account(AccountHash::new([0x33u8; 32]));
+        let amount = U256::from(1000u64);
+        let valid_after = 0u64;
+        let valid_before = 1_000_000u64;
+        let nonce = Bytes::from(vec![0x44u8; 32]);
+        let pkg = [0x11u8; 32];
+
+        let ds = domain_separator("Moon AI Token", "1", "casper:casper-test", &pkg);
+        let sh = transfer_with_authorization_struct_hash(
+            from,
+            to,
+            amount,
+            valid_after,
+            valid_before,
+            &nonce,
+        );
+        let mut buf = Vec::with_capacity(2 + 32 + 32);
+        buf.push(0x19);
+        buf.push(0x01);
+        buf.extend_from_slice(&ds);
+        buf.extend_from_slice(&sh);
+        let digest = keccak256(&buf);
+        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        println!("EIP712_DIGEST_VECTOR={hex}");
+        assert_eq!(hex.len(), 64);
+    }
     use odra::casper_types::bytesrepr::ToBytes;
     use odra::casper_types::crypto::{sign, SecretKey};
     use odra::host::{Deployer, NoArgs};
