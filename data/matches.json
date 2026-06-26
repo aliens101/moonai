@@ -2,15 +2,28 @@
   {
     "id": 0,
     "question": "Is the rise of artificial intelligence in decision-making processes a threat to human agency?",
-    "judges": ["Crypto Bull", "L2 Maxi", "Skeptical Academic"],
+    "judges": [
+      "Crypto Bull",
+      "L2 Maxi",
+      "Skeptical Academic"
+    ],
     "players": [
       {
         "name": "Agent-Alpha",
         "total": 12,
         "scores": [
-          { "judge": "Crypto Bull", "score": 2 },
-          { "judge": "L2 Maxi", "score": 2 },
-          { "judge": "Skeptical Academic", "score": 8 }
+          {
+            "judge": "Crypto Bull",
+            "score": 2
+          },
+          {
+            "judge": "L2 Maxi",
+            "score": 2
+          },
+          {
+            "judge": "Skeptical Academic",
+            "score": 8
+          }
         ],
         "submitTx": "e96cae89bad9c5a45c5d8070e36d389c4bedbac64c78edacfb029a73debe1e95"
       },
@@ -18,9 +31,18 @@
         "name": "Agent-Beta",
         "total": 11,
         "scores": [
-          { "judge": "Crypto Bull", "score": 3 },
-          { "judge": "L2 Maxi", "score": 2 },
-          { "judge": "Skeptical Academic", "score": 6 }
+          {
+            "judge": "Crypto Bull",
+            "score": 3
+          },
+          {
+            "judge": "L2 Maxi",
+            "score": 2
+          },
+          {
+            "judge": "Skeptical Academic",
+            "score": 6
+          }
         ],
         "submitTx": "52f90524618b284b70885510e1926e3d0e1587f71ff6e8d856ee390456fffb5e"
       }
@@ -30,6 +52,63 @@
       "create": "275fd25b4e0e593f18511b12f8f00e2100bd5fcd6ea237db9923a2e4d641aa40",
       "post": "f885aeb1ee3b1a0e34d8f86f9d1f0e0cf1b86f4534eeb2d6bef6bb6db18a7b7c",
       "settle": "b047b4978c716ba76ee7f24f53bbb42bc3bd95af7d4e2563b810cc411f6f7c26"
+    }
+  },
+  {
+    "id": 1,
+    "question": "Is the rise of artificial intelligence threatening the essence of human creativity?",
+    "judges": [
+      "Crypto Bull",
+      "L2 Maxi",
+      "Skeptical Academic"
+    ],
+    "players": [
+      {
+        "name": "Agent-Alpha",
+        "total": 10,
+        "scores": [
+          {
+            "judge": "Crypto Bull",
+            "score": 2
+          },
+          {
+            "judge": "L2 Maxi",
+            "score": 2
+          },
+          {
+            "judge": "Skeptical Academic",
+            "score": 6
+          }
+        ],
+        "submitTx": "bbf0802f853a802bceb87db83cf02af1bd9d99d198c5bfe831132f2c2b753c59",
+        "x402Tx": "fdbe2f8c4f24116d342d03b62690272103da0b607d7b0a1e6d3350b8a07eee33"
+      },
+      {
+        "name": "Agent-Beta",
+        "total": 14,
+        "scores": [
+          {
+            "judge": "Crypto Bull",
+            "score": 5
+          },
+          {
+            "judge": "L2 Maxi",
+            "score": 3
+          },
+          {
+            "judge": "Skeptical Academic",
+            "score": 6
+          }
+        ],
+        "submitTx": "690f4ec33d3b049095899cfcf17921e39cd29bbd4795823440b3cf343908677c",
+        "x402Tx": "6d11933453ab237364939a101bea53e4ef2edf83f9227b435f5f4164c305d0f5"
+      }
+    ],
+    "winner": "Agent-Beta",
+    "tx": {
+      "create": "44f12f7a213bda19420f80e796b44c3af4d6440614ee1b35745b3b5979f1bd41",
+      "post": "2fff4e17be71b29bb94ccf1a9f959186b54c6881dbefd85c11629a22c2d3680c",
+      "settle": "4a76088a4a202293daa4e5f692a0fcd87004be29a24a47c2e1a3478ef4a8b54c"
     }
   }
 ]
