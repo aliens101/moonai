@@ -24,8 +24,10 @@ import {
   arena,
   fund,
   loadSigner,
+  moonToken,
   newAgent,
   txLink,
+  x402Pay,
 } from '@moonai/plugin-onchain'
 
 interface MatchRecord {
@@ -37,6 +39,7 @@ interface MatchRecord {
     total: number
     scores: { judge: string; score: number }[]
     submitTx: string
+    x402Tx: string
   }[]
   winner: string
   tx: { create: string; post: string; settle: string }
@@ -48,6 +51,7 @@ const orchestrator = loadSigner(PEM)
 
 const COUNTER = '.match-id'
 const DATA = 'data/matches.json'
+const ANSWER_FEE = 2_000_000_000n // 2 MOON per answer, paid via x402
 const matchId = existsSync(COUNTER) ? Number(readFileSync(COUNTER, 'utf8')) : 0
 const sha = (s: string) => new Bun.CryptoHasher('sha256').update(s).digest('hex')
 
@@ -71,8 +75,11 @@ const players = [
     strategy: 'Be balanced and diplomatic — try to satisfy every perspective at once.',
   },
 ]
-console.log('② funding competitors…')
-for (const p of players) await fund(orchestrator, p.key.publicKey, 60)
+console.log('② funding competitors (gas + MoonToken for x402 fees)…')
+for (const p of players) {
+  await fund(orchestrator, p.key.publicKey, 60)
+  await moonToken.transfer(orchestrator, accountHashOf(p.key.publicKey), ANSWER_FEE * 2n)
+}
 
 // ③ competitors register on-chain
 console.log('③ register…')
@@ -95,6 +102,9 @@ const playerRecords: MatchRecord['players'] = []
 const ranking: { name: string; accountHash: string; total: number }[] = []
 for (const p of players) {
   const answer = await craftAnswer(question, p.strategy)
+  // pay the answer fee via x402 — the agent signs off-chain, the orchestrator settles
+  const x402Tx = await x402Pay(orchestrator, p.key, ANSWER_FEE)
+  console.log('   ', p.name, 'x402 fee', txLink(x402Tx))
   const submitTx = await arena.submitAnswer(p.key, matchId, sha(answer))
   console.log('   ', p.name, 'submit_answer', txLink(submitTx))
   const panel = await judgePanel(question, answer, judges)
@@ -106,6 +116,7 @@ for (const p of players) {
     total: panel.total,
     scores: panel.scores.map((s) => ({ judge: s.judge, score: s.score })),
     submitTx,
+    x402Tx,
   })
   ranking.push({
     name: p.name,

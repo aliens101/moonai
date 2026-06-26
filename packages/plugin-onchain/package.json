@@ -7,6 +7,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@moonai/x402": "workspace:*",
     "casper-js-sdk": "5.0.12"
   }
 }

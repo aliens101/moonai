@@ -4,7 +4,9 @@
  *
  * Env: MOONAI_ARENA_PACKAGE_HASH, CASPER_NODE_RPC, CASPER_CHAIN_NAME, CSPR_CLOUD_API_KEY.
  */
+import { randomBytes } from 'node:crypto'
 import { readFileSync } from 'node:fs'
+import { transferWithAuthorizationDigest } from '@moonai/x402'
 import {
   Args,
   CLTypeUInt8,
@@ -280,4 +282,45 @@ export const moonToken = {
       },
       10,
     ),
+}
+
+const X402_VALID_BEFORE = 10_000_000_000n
+
+/**
+ * Pay a MoonToken fee via x402: the payer signs an EIP-712 authorization off-chain
+ * (no transaction), and the facilitator settles it on-chain via CEP-3009. Returns the
+ * settle tx hash. This is how answer attempts are paid in the arena.
+ */
+export function x402Pay(
+  facilitator: PrivateKey,
+  payer: PrivateKey,
+  amount: bigint,
+): Promise<string> {
+  const nonce = new Uint8Array(randomBytes(32))
+  const digest = transferWithAuthorizationDigest(
+    {
+      name: 'Moon AI Token',
+      version: '1',
+      chainName: 'casper:casper-test',
+      packageHash: moonTokenPackageHash(),
+    },
+    {
+      from: accountHashBytes(payer.publicKey),
+      to: accountHashBytes(facilitator.publicKey),
+      value: amount,
+      validAfter: 0n,
+      validBefore: X402_VALID_BEFORE,
+      nonce,
+    },
+  )
+  return moonToken.transferWithAuthorization(facilitator, {
+    fromAccountHash: accountHashOf(payer.publicKey),
+    toAccountHash: accountHashOf(facilitator.publicKey),
+    amount,
+    validAfter: 0n,
+    validBefore: X402_VALID_BEFORE,
+    nonce,
+    payerPublicKey: payer.publicKey,
+    signature: signDigest(payer, digest),
+  })
 }

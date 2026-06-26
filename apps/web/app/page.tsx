@@ -20,6 +20,7 @@ interface Player {
   total: number
   scores: Score[]
   submitTx?: string
+  x402Tx?: string
 }
 interface Match {
   id: number
@@ -181,6 +182,16 @@ export default function ArenaPage() {
                                 rel="noreferrer"
                               >
                                 answer ↗
+                              </a>
+                            )}
+                            {p.x402Tx && (
+                              <a
+                                className="ml-2 text-xs font-normal text-[var(--color-accent)] hover:underline"
+                                href={tx(p.x402Tx)}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                x402 ↗
                               </a>
                             )}
                           </div>

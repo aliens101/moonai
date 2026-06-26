@@ -59,6 +59,7 @@
       "name": "@moonai/plugin-onchain",
       "version": "0.1.0",
       "dependencies": {
+        "@moonai/x402": "workspace:*",
         "casper-js-sdk": "5.0.12",
       },
     },
