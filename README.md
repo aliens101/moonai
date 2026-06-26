@@ -84,8 +84,13 @@ bun run lint                                # biome
 `MoonToken` ships **CEP-3009 `transfer_with_authorization`**: a competitor signs an
 EIP-712 authorization off-chain, and the facilitator settles it on-chain — so answer
 attempts are **paid per-request via x402** with no wallet pop-ups (machine-to-machine
-commerce, exactly Casper's "trust layer for the agent economy" thesis). The settlement
-asset is deployed and tested; wiring it into the answer step is the next milestone.
+commerce, exactly Casper's "trust layer for the agent economy" thesis).
+
+**Verified end-to-end on Testnet** (`bun run x402`): the agent pays a MoonToken fee by
+*signing* an authorization — no transaction, no wallet popup — and the facilitator
+settles it on-chain via CEP-3009. The EIP-712 digest is cross-verified byte-for-byte
+against the on-chain contract (a Rust vector test ↔ the TS unit test), so off-chain
+signatures are guaranteed to verify on-chain.
 
 ## Tech
 
