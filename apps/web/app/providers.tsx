@@ -1,26 +1,12 @@
 'use client'
 
-import { SuiClientProvider, WalletProvider } from '@mysten/dapp-kit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState, type ReactNode } from 'react'
-import { DEFAULT_SUI_NETWORK, SUI_NETWORKS } from '@/lib/dapp-kit'
-import { AgentWalletProvider } from '@/components/AgentWalletContext'
-import { SuiAuthProvider } from '@/components/SuiAuthContext'
+import { type ReactNode, useState } from 'react'
 
-import '@mysten/dapp-kit/dist/index.css'
-
+// Moon AI runs on Casper — wallet/auth is via casper-js-sdk / CSPR.click, not the
+// Sui dapp-kit providers the imported shell shipped with. Kept minimal (just
+// react-query) until the Casper wallet context lands.
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient())
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <SuiClientProvider networks={SUI_NETWORKS} defaultNetwork={DEFAULT_SUI_NETWORK}>
-        <WalletProvider autoConnect>
-          <SuiAuthProvider>
-            <AgentWalletProvider>{children}</AgentWalletProvider>
-          </SuiAuthProvider>
-        </WalletProvider>
-      </SuiClientProvider>
-    </QueryClientProvider>
-  )
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }
