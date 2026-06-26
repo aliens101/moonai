@@ -7,6 +7,7 @@
 import { readFileSync } from 'node:fs'
 import {
   Args,
+  CLTypeUInt8,
   CLValue,
   ContractCallBuilder,
   HttpHandler,
@@ -21,6 +22,7 @@ import {
 const NODE = process.env.CASPER_NODE_RPC ?? 'https://node.testnet.cspr.cloud/rpc'
 const CHAIN = process.env.CASPER_CHAIN_NAME ?? 'casper-test'
 const ARENA = (process.env.MOONAI_ARENA_PACKAGE_HASH ?? '').replace(/^hash-/, '')
+const TOKEN = (process.env.MOONAI_TOKEN_PACKAGE_HASH ?? '').replace(/^hash-/, '')
 const MOTES = 1_000_000_000
 
 const handler = new HttpHandler(NODE)
@@ -106,23 +108,31 @@ async function submit(
   return hash
 }
 
-function call(
+function callContract(
   signer: PrivateKey,
+  pkg: string,
   entryPoint: string,
   args: Record<string, CLValue>,
   payCspr: number,
 ): Promise<string> {
-  if (!ARENA) throw new Error('set MOONAI_ARENA_PACKAGE_HASH')
+  if (!pkg) throw new Error(`missing contract package hash for ${entryPoint}`)
   const tx = new ContractCallBuilder()
     .from(signer.publicKey)
     .chainName(CHAIN)
-    .byPackageHash(ARENA)
+    .byPackageHash(pkg)
     .entryPoint(entryPoint)
     .runtimeArgs(Args.fromMap(args))
     .payment(payCspr * MOTES)
     .build()
   return submit(signer, tx, entryPoint)
 }
+
+const call = (
+  signer: PrivateKey,
+  entryPoint: string,
+  args: Record<string, CLValue>,
+  payCspr: number,
+) => callContract(signer, ARENA, entryPoint, args, payCspr)
 
 /** Native CSPR transfer (used to fund fresh agent keypairs with gas). */
 export function fund(from: PrivateKey, to: PublicKey, cspr: number): Promise<string> {
@@ -183,4 +193,91 @@ export const arena = {
     ),
   claim: (s: PrivateKey, matchId: number) =>
     call(s, 'claim', { match_id: CLValue.newCLUint64(matchId) }, 6),
+}
+
+// --- x402 / MoonToken (CEP-3009) -------------------------------------------
+
+function hexToBytes(hex: string): Uint8Array {
+  const h = hex.replace(/^0x/, '')
+  const out = new Uint8Array(h.length / 2)
+  for (let i = 0; i < out.length; i++) {
+    out[i] = Number.parseInt(h.slice(i * 2, i * 2 + 2), 16)
+  }
+  return out
+}
+
+/** Sign a 32-byte digest with a Casper key. Returns `[algo_tag | 64-byte sig]`
+ * (65 bytes), the format the contract's `verify_signature` expects — casper-js-sdk
+ * `sign()` returns the bare 64-byte signature, so we prepend the key's algorithm
+ * prefix (0x01 ed25519, 0x02 secp256k1). */
+export function signDigest(signer: PrivateKey, digest: Uint8Array): Uint8Array {
+  const sig = signer.sign(digest)
+  if (sig.length === 65) return sig
+  const tag = Number.parseInt(signer.publicKey.toHex().slice(0, 2), 16)
+  const out = new Uint8Array(sig.length + 1)
+  out[0] = tag
+  out.set(sig, 1)
+  return out
+}
+
+/** The 32-byte account hash of a public key (no `account-hash-` prefix). */
+export function accountHashBytes(pub: PublicKey): Uint8Array {
+  return hexToBytes(accountHashOf(pub).replace(/^account-hash-/, ''))
+}
+
+/** The MoonToken 32-byte package hash (for the EIP-712 domain). */
+export function moonTokenPackageHash(): Uint8Array {
+  return hexToBytes(TOKEN)
+}
+
+const byteList = (b: Uint8Array) =>
+  CLValue.newCLList(
+    CLTypeUInt8,
+    Array.from(b, (x) => CLValue.newCLUint8(x)),
+  )
+
+export const moonToken = {
+  /** Move MoonToken from the caller to a recipient (`account-hash-…`). */
+  transfer: (s: PrivateKey, recipientAccountHash: string, amount: bigint) =>
+    callContract(
+      s,
+      TOKEN,
+      'transfer',
+      {
+        recipient: CLValue.newCLKey(Key.newKey(recipientAccountHash)),
+        amount: CLValue.newCLUInt256(amount.toString()),
+      },
+      8,
+    ),
+
+  /** CEP-3009 settle: the facilitator submits a payer's off-chain authorization. */
+  transferWithAuthorization: (
+    facilitator: PrivateKey,
+    a: {
+      fromAccountHash: string
+      toAccountHash: string
+      amount: bigint
+      validAfter: bigint
+      validBefore: bigint
+      nonce: Uint8Array
+      payerPublicKey: PublicKey
+      signature: Uint8Array
+    },
+  ) =>
+    callContract(
+      facilitator,
+      TOKEN,
+      'transfer_with_authorization',
+      {
+        from: CLValue.newCLKey(Key.newKey(a.fromAccountHash)),
+        to: CLValue.newCLKey(Key.newKey(a.toAccountHash)),
+        amount: CLValue.newCLUInt256(a.amount.toString()),
+        valid_after: CLValue.newCLUint64(a.validAfter.toString()),
+        valid_before: CLValue.newCLUint64(a.validBefore.toString()),
+        nonce: byteList(a.nonce),
+        public_key: CLValue.newCLPublicKey(a.payerPublicKey),
+        signature: byteList(a.signature),
+      },
+      10,
+    ),
 }
