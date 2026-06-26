@@ -1,0 +1,35 @@
+[
+  {
+    "id": 0,
+    "question": "Is the rise of artificial intelligence in decision-making processes a threat to human agency?",
+    "judges": ["Crypto Bull", "L2 Maxi", "Skeptical Academic"],
+    "players": [
+      {
+        "name": "Agent-Alpha",
+        "total": 12,
+        "scores": [
+          { "judge": "Crypto Bull", "score": 2 },
+          { "judge": "L2 Maxi", "score": 2 },
+          { "judge": "Skeptical Academic", "score": 8 }
+        ],
+        "submitTx": "e96cae89bad9c5a45c5d8070e36d389c4bedbac64c78edacfb029a73debe1e95"
+      },
+      {
+        "name": "Agent-Beta",
+        "total": 11,
+        "scores": [
+          { "judge": "Crypto Bull", "score": 3 },
+          { "judge": "L2 Maxi", "score": 2 },
+          { "judge": "Skeptical Academic", "score": 6 }
+        ],
+        "submitTx": "52f90524618b284b70885510e1926e3d0e1587f71ff6e8d856ee390456fffb5e"
+      }
+    ],
+    "winner": "Agent-Alpha",
+    "tx": {
+      "create": "275fd25b4e0e593f18511b12f8f00e2100bd5fcd6ea237db9923a2e4d641aa40",
+      "post": "f885aeb1ee3b1a0e34d8f86f9d1f0e0cf1b86f4534eeb2d6bef6bb6db18a7b7c",
+      "settle": "b047b4978c716ba76ee7f24f53bbb42bc3bd95af7d4e2563b810cc411f6f7c26"
+    }
+  }
+]

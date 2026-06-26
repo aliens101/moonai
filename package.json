@@ -11,6 +11,7 @@
     "hashes": "bun run scripts/hashes.ts",
     "demo": "bun run scripts/agents-demo.ts",
     "match": "bun run apps/orchestrator/src/index.ts",
+    "web": "bun --filter @moonai/web dev",
     "test": "bun test",
     "test:contracts": "cd moonai-contracts && cargo odra test",
     "lint": "biome check .",
